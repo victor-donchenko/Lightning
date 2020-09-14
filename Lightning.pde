@@ -1,47 +1,73 @@
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.Arrays;
-import java.util.Properties;
-import java.io.InputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.geom.Line2D;
-
-int get_int_prop(Properties props, String key) {
-  // get the value of the property key as an integer
-  return Integer.parseInt(props.getProperty(key));
+// partial implementation of standard Java library class
+public static class Line2D {
+  public static class Double {
+    private double x1;
+    private double y1;
+    private double x2;
+    private double y2;
+    
+    public Double(double ix1, double iy1, double ix2, double iy2) {
+      x1 = ix1;
+      y1 = iy1;
+      x2 = ix2;
+      y2 = iy2;
+    }
+    
+    public double getX1() {
+      return x1;
+    }
+    
+    public double getY1() {
+      return y1;
+    }
+    
+    public double getX2() {
+      return x2;
+    }
+    
+    public double getY2() {
+      return y2;
+    }
+  }
 }
+
+// represents objects that can be drawn on screen
+abstract class Drawable {
+  private double age;
+
+  public Drawable() {
+    age = 0;
+  }
   
-double get_double_prop(Properties props, String key) {
-  // get the value of the property key as a double
-  return Double.parseDouble(props.getProperty(key));
+  public double get_age() {
+    return age;
+  }
+  
+  public void add_age(double diff) {
+    age += diff;
+  }
+  
+  public abstract void display();
+  public abstract boolean is_finished();
 }
 
-class LightningStrike {
+class LightningStrike extends Drawable {
   // class for a single lightning strike
   
   // various properties for generating and displaying lightning strikes
-  final int screen_width = get_int_prop(props, "screen_width");
-  final int screen_height = get_int_prop(props, "screen_height");
-  final double max_beginning_bias = get_double_prop(props, "max_beginning_bias");
-  final double spread = get_double_prop(props, "spread");
-  final double split_chance_delta = get_double_prop(props, "split_chance_delta");
-  final double bias_change_max = get_double_prop(props, "bias_change_max");
-  final double bias_mult_factor = get_double_prop(props, "bias_mult_factor");
-  final double lightning_duration = get_double_prop(props, "lightning_duration");
+  final double max_beginning_bias = 0; //get_double_prop(props, "max_beginning_bias");
+  final double spread = 1.5; //get_double_prop(props, "spread");
+  final double split_chance_delta = 0.02; //get_double_prop(props, "split_chance_delta");
+  final double bias_change_max = 5; //get_double_prop(props, "bias_change_max");
+  final double bias_mult_factor = 0.1; //get_double_prop(props, "bias_mult_factor");
+  final double lightning_duration = 0.25; //get_double_prop(props, "lightning_duration");
   
   private ArrayList<Line2D.Double> lines;
-  private double age; // time since creation, in seconds
 
   public LightningStrike(double start_x, double start_y) {
+    super();
     // start_x and start_y are the origin of the strike
     get_lines(start_x, start_y);
-    age = 0;
   }
   
   private void get_lines(double start_x, double start_y) {
@@ -50,17 +76,15 @@ class LightningStrike {
     // split_chance is the chance that the lightning bolt will split at the next y level
     double split_chance = 0;
     // current horizontal locations of the lightning "legs"
-    ArrayList<Double> locations = new ArrayList<Double>(
-      Arrays.asList(0d)
-    );
+    ArrayList<Double> locations = new ArrayList<Double>();
+    locations.add(0d);
     // biases of each of the lightning legs (essentially slopes)
-    ArrayList<Double> biases = new ArrayList<Double>(
-      Arrays.asList(Math.random() * (2 * max_beginning_bias) - max_beginning_bias)
-    );
+    ArrayList<Double> biases = new ArrayList<Double>();
+    biases.add(Math.random() * (2 * max_beginning_bias) - max_beginning_bias);
     // the multiplier for the change of bias at the next leg split
-    ArrayList<Double> bias_change_factors = new ArrayList<Double>(
-      Arrays.asList(1.0d)
-    );
+    ArrayList<Double> bias_change_factors = new ArrayList<Double>();
+    bias_change_factors.add(1d);
+
     for (int i = 0; i < screen_height; ++i) {
       // loop through screen one y-level at the time
       // i is the y-level
@@ -109,7 +133,7 @@ class LightningStrike {
     return lerpColor(
       color(0xff, 0xff, 0x00), // color yellow
       color(0xff, 0xff, 0xff), // color white
-      (float)(age / lightning_duration)
+      (float)(get_age() / lightning_duration)
     );
   }
 
@@ -129,103 +153,129 @@ class LightningStrike {
       );
     }
   }
+    
+  public boolean is_finished() {
+    // is the lightning bolt finished displaying?
+    return get_age() >= lightning_duration;
+  }
+}
+
+class Cloud extends Drawable {
+  private double cloud_width;
+  private double cloud_height;
+  private double start_x;
+  private double start_y;
+  private double speed;
+  private color cloud_color;
   
-  public void add_age(double diff) {
-    // add diff seconds to the age
-    age += diff;
+  Cloud(double i_cloud_width, double i_cloud_height, double i_start_x, double i_start_y, double i_speed, color i_cloud_color) {
+    super();
+    cloud_width = i_cloud_width;
+    cloud_height = i_cloud_height;
+    start_x = i_start_x;
+    start_y = i_start_y;
+    speed = i_speed;
+    cloud_color = i_cloud_color;
+  }
+  
+  public double get_center_x() {
+    return start_x + speed * get_age();
+  }
+  
+  public double get_center_y() {
+    return start_y;
+  }
+  
+  public void display() {
+    fill(cloud_color);
+    strokeWeight(0);
+    ellipse(
+      (float)get_center_x(),
+      (float)get_center_y(),
+      (float)cloud_width,
+      (float)cloud_height
+    );
   }
   
   public boolean is_finished() {
-    // is the lightning bolt finished displaying?
-    return age >= lightning_duration;
+    return get_center_x() - cloud_width / 2 > screen_width;
   }
 }
 
-static Properties props; // stores properties for the program
-static Dimension screen_dimens;
-static double frame_rate;
-
-void get_props() {
-  // fills out the program properties
-  props = new Properties();
-
-  props.setProperty("screen_width", "80");
-  props.setProperty("screen_height", "30");
-  props.setProperty("max_beginning_bias", "0");
-  props.setProperty("spread", "1.5");
-  props.setProperty("split_chance_delta", "0.02");
-  props.setProperty("bias_change_max", "5");
-  props.setProperty("bias_mult_factor", "0.1");
-  props.setProperty("lightning_duration", "0.5");
-  props.setProperty("frame_rate", "30");
-}
-
-void get_screen_dimens() {
-  // get screen_dimens from the properties
-  screen_dimens = new Dimension(
-    get_int_prop(props, "screen_width"),
-    get_int_prop(props, "screen_height")
-  );
-}
-
-void get_frame_rate() {
-  // get frame_rate from the properties
-  frame_rate = get_double_prop(props, "frame_rate");
-}
-
-static LinkedList<LightningStrike> lightning_strikes; // currently displayed lightning strikes
-static int frames_until_lightning_strike; // frames until a new lightning strike is created
+final int screen_width = 80;
+final int screen_height = 30;
+final double frame_rate = 30;
+static ArrayList<Drawable> drawables; // currently displayed drawables
+static ArrayList<Cloud> clouds;
+static int frames_until_cloud; // frames until a new cloud is created
 
 void setup() {
   surface.setTitle("Lightning");
   size(800, 300);
   surface.setResizable(true);
   
-  get_props();
-  get_screen_dimens();
-  get_frame_rate();
-  
   // set frame rate of screen
   frameRate((float)frame_rate);
   
-  lightning_strikes = new LinkedList<LightningStrike>();
-  frames_until_lightning_strike = 0;
+  drawables = new ArrayList<Drawable>();
+  clouds = new ArrayList<Cloud>();
+  frames_until_cloud = 0;
 }
 
 void draw() {
   // scale so that whole drawing screen is visible
   // (shrink-to-fit)
   scale(Math.min(
-    (float)width / screen_dimens.width,
-    (float)height / screen_dimens.height
+    (float)width / screen_width,
+    (float)height / screen_height
   ));
 
   // background is black
   background(color(0x00, 0x00, 0x40));
 
-  // display each strike
-  for (LightningStrike strike : lightning_strikes) {
-    strike.display();
+  // display each drawable
+  for (Drawable drawable : drawables) {
+    drawable.display();
   }
   
-  // age each strike and remove the ones that are finished
-  ListIterator<LightningStrike> it = lightning_strikes.listIterator();
-  while (it.hasNext()) {
-    LightningStrike strike = it.next();
-    strike.add_age(1.0 / frame_rate); // time passed since last draw call in seconds (approximately)
-    if (strike.is_finished()) {
-      it.remove();
+  // age each drawable and remove the ones that are finished
+  ArrayList<Integer> removal_indices = new ArrayList<Integer>();
+  for (int i = 0; i < drawables.size(); ++i) {
+    Drawable drawable = drawables.get(i);
+    drawable.add_age(1.0 / frame_rate); // time passed since last draw call in seconds (approximately)
+    if (drawable.is_finished()) {
+      removal_indices.add(i);
     }
   }
+  for (Integer i_obj : removal_indices) {
+    drawables.remove(i_obj.intValue());
+  }
   
-  if (frames_until_lightning_strike == 0) {
-    // if a new lightning strike is due
-    double start_x = 0.5 * screen_dimens.width; // halfway across the screen horizontally
-    double start_y = 0; // top of the screen
-    lightning_strikes.add(new LightningStrike(start_x, start_y));
-    frames_until_lightning_strike = (int)(frame_rate * 1); // new lightning strike in 1 second
+  if (frames_until_cloud == 0) {
+    // if a new cloud is due
+    double cloud_width = 20 + Math.random() * 30;
+    double cloud_height = cloud_width / 4;
+    double center_x = -cloud_width / 2;
+    double center_y = Math.random() * (screen_height / 4);
+    double speed = 2 + Math.random() * 3;
+    color cloud_color = lerpColor(color(0x60, 0x60, 0x60), color(0xa0, 0xa0, 0xa0), (float)Math.random());
+    // create new cloud
+    Cloud new_cloud = new Cloud(cloud_width, cloud_height, center_x, center_y, speed, cloud_color);
+    drawables.add(new_cloud);
+    clouds.add(new_cloud);
+    frames_until_cloud = (int)(frame_rate * 5); // new cloud in 5 seconds
   }
   else {
-    --frames_until_lightning_strike;
+    --frames_until_cloud;
   }
+}
+
+void mousePressed() {
+  // generates a lightning strike from a random cloud
+  int i = (int)(Math.random() * clouds.size());
+  Cloud cloud = clouds.get(i);
+  double start_x = cloud.get_center_x();
+  double start_y = cloud.get_center_y();
+  LightningStrike new_lightning_strike = new LightningStrike(start_x, start_y);
+  drawables.add(new_lightning_strike);
 }
