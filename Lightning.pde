@@ -57,8 +57,8 @@ class LightningStrike extends Drawable {
   final double max_beginning_bias = 0;
   final double spread = 1.5;
   final double split_chance_delta = 0.02;
-  final double bias_change_max = 5;
-  final double bias_mult_factor = 0.1;
+  final double bias_change_max = 2;
+  final double bias_mult_factor = 0.2;
   final double lightning_duration = 0.25;
   
   private ArrayList<Line2D> lines;
