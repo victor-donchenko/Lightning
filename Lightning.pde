@@ -89,8 +89,8 @@ class LightningStrike extends Drawable {
       // i is the y-level
       for (int k = 0; k < locations.size(); ++k) {
         // loop through each lightning leg
-        double location = locations.get(k).doubleValue();
-        double bias = biases.get(k).doubleValue();
+        double location = locations.get(k);
+        double bias = biases.get(k);
   
         // delta is how far the leg will move left or right
         double delta = Math.random() * (2 * spread) - spread + bias;
@@ -112,7 +112,7 @@ class LightningStrike extends Drawable {
         if (Math.random() < split_chance) {
           // offset the current leg bias by the bias change,
           // use that as the bias for the new leg
-          double bias_change_factor = bias_change_factors.get(k).doubleValue();
+          double bias_change_factor = bias_change_factors.get(k);
           double bias_change = (Math.random() * (2 * bias_change_max) - bias_change_max) * bias_change_factor;
           locations.add(location);
           biases.add(bias + bias_change);
@@ -143,12 +143,12 @@ class LightningStrike extends Drawable {
     stroke(current_color);
     strokeWeight(0.5);
     // draw each line
-    for (Line2D line : lines) {
+    for (Line2D l : lines) {
       line(
-        (float)line.getX1(),
-        (float)line.getY1(),
-        (float)line.getX2(),
-        (float)line.getY2()
+        (float)l.getX1(),
+        (float)l.getY1(),
+        (float)l.getX2(),
+        (float)l.getY2()
       );
     }
   }
@@ -187,6 +187,7 @@ class Cloud extends Drawable {
   
   public void display() {
     fill(cloud_color);
+    stroke(color(0x00, 0x00, 0x00));
     strokeWeight(0.1);
     ellipse(
       (float)get_center_x(),
@@ -245,7 +246,7 @@ void draw() {
     }
   }
   for (Integer i_obj : removal_indices) {
-    drawables.remove(i_obj.intValue());
+    drawables.remove(i_obj);
   }
   
   if (frames_until_cloud == 0) {
