@@ -283,8 +283,6 @@ void draw() {
 }
 
 void mousePressed() {
-  println(clouds.size());
-  println(drawables.size());
   // generates a lightning strike from a random cloud
   int i = (int)(Math.random() * clouds.size());
   Cloud cloud = clouds.get(i);
