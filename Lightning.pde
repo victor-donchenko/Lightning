@@ -54,12 +54,12 @@ class LightningStrike extends Drawable {
   // class for a single lightning strike
   
   // various properties for generating and displaying lightning strikes
-  final double max_beginning_bias = 0; //get_double_prop(props, "max_beginning_bias");
-  final double spread = 1.5; //get_double_prop(props, "spread");
-  final double split_chance_delta = 0.02; //get_double_prop(props, "split_chance_delta");
-  final double bias_change_max = 5; //get_double_prop(props, "bias_change_max");
-  final double bias_mult_factor = 0.1; //get_double_prop(props, "bias_mult_factor");
-  final double lightning_duration = 0.25; //get_double_prop(props, "lightning_duration");
+  final double max_beginning_bias = 0;
+  final double spread = 1.5;
+  final double split_chance_delta = 0.02;
+  final double bias_change_max = 5;
+  final double bias_mult_factor = 0.1;
+  final double lightning_duration = 0.25;
   
   private ArrayList<Line2D> lines;
 
@@ -202,6 +202,8 @@ class Cloud extends Drawable {
   }
 }
 
+// shapes are drawn according to the screen size written below
+// they are scaled up or down to the actual screen size in the draw function
 final int screen_width = 80;
 final int screen_height = 30;
 final double frame_rate = 30;
@@ -249,6 +251,18 @@ void draw() {
     drawables.remove(i_obj);
   }
   
+  // remove the clouds that are finished
+  ArrayList<Integer> removal_indices2 = new ArrayList<Integer>();
+  for (int i = 0; i < clouds.size(); ++i) {
+    Cloud cloud = clouds.get(i);
+    if (cloud.is_finished()) {
+      removal_indices2.add(i);
+    }
+  }
+  for (Integer i_obj : removal_indices2) {
+    clouds.remove(i_obj);
+  }
+  
   if (frames_until_cloud == 0) {
     // if a new cloud is due
     double cloud_width = 20 + Math.random() * 30;
@@ -269,6 +283,8 @@ void draw() {
 }
 
 void mousePressed() {
+  println(clouds.size());
+  println(drawables.size());
   // generates a lightning strike from a random cloud
   int i = (int)(Math.random() * clouds.size());
   Cloud cloud = clouds.get(i);
