@@ -1,33 +1,32 @@
 // partial implementation of standard Java library class
-public static class Line2D {
-  public static class Double {
-    private double x1;
-    private double y1;
-    private double x2;
-    private double y2;
+
+class Line2D {
+  private double x1;
+  private double y1;
+  private double x2;
+  private double y2;
+  
+  public Line2D(double ix1, double iy1, double ix2, double iy2) {
+    x1 = ix1;
+    y1 = iy1;
+    x2 = ix2;
+    y2 = iy2;
+  }
     
-    public Double(double ix1, double iy1, double ix2, double iy2) {
-      x1 = ix1;
-      y1 = iy1;
-      x2 = ix2;
-      y2 = iy2;
-    }
-    
-    public double getX1() {
-      return x1;
-    }
-    
-    public double getY1() {
-      return y1;
-    }
-    
-    public double getX2() {
-      return x2;
-    }
-    
-    public double getY2() {
-      return y2;
-    }
+  public double getX1() {
+    return x1;
+  }
+   
+  public double getY1() {
+    return y1;
+  }
+  
+  public double getX2() {
+    return x2;
+  }
+  
+  public double getY2() {
+    return y2;
   }
 }
 
@@ -62,7 +61,7 @@ class LightningStrike extends Drawable {
   final double bias_mult_factor = 0.1; //get_double_prop(props, "bias_mult_factor");
   final double lightning_duration = 0.25; //get_double_prop(props, "lightning_duration");
   
-  private ArrayList<Line2D.Double> lines;
+  private ArrayList<Line2D> lines;
 
   public LightningStrike(double start_x, double start_y) {
     super();
@@ -71,19 +70,19 @@ class LightningStrike extends Drawable {
   }
   
   private void get_lines(double start_x, double start_y) {
-    lines = new ArrayList<Line2D.Double>();
+    lines = new ArrayList<Line2D>();
     
     // split_chance is the chance that the lightning bolt will split at the next y level
     double split_chance = 0;
     // current horizontal locations of the lightning "legs"
     ArrayList<Double> locations = new ArrayList<Double>();
-    locations.add(0d);
+    locations.add((double)0);
     // biases of each of the lightning legs (essentially slopes)
     ArrayList<Double> biases = new ArrayList<Double>();
     biases.add(Math.random() * (2 * max_beginning_bias) - max_beginning_bias);
     // the multiplier for the change of bias at the next leg split
     ArrayList<Double> bias_change_factors = new ArrayList<Double>();
-    bias_change_factors.add(1d);
+    bias_change_factors.add((double)1);
 
     for (int i = 0; i < screen_height; ++i) {
       // loop through screen one y-level at the time
@@ -102,7 +101,7 @@ class LightningStrike extends Drawable {
         );
   
         // add a new line to the set
-        lines.add(new Line2D.Double(
+        lines.add(new Line2D(
           start_x + location,
           start_y + i,
           start_x + new_location,
@@ -144,7 +143,7 @@ class LightningStrike extends Drawable {
     stroke(current_color);
     strokeWeight(0.5);
     // draw each line
-    for (Line2D.Double line : lines) {
+    for (Line2D line : lines) {
       line(
         (float)line.getX1(),
         (float)line.getY1(),
@@ -188,7 +187,7 @@ class Cloud extends Drawable {
   
   public void display() {
     fill(cloud_color);
-    strokeWeight(0);
+    strokeWeight(0.1);
     ellipse(
       (float)get_center_x(),
       (float)get_center_y(),
@@ -210,9 +209,7 @@ static ArrayList<Cloud> clouds;
 static int frames_until_cloud; // frames until a new cloud is created
 
 void setup() {
-  surface.setTitle("Lightning");
   size(800, 300);
-  surface.setResizable(true);
   
   // set frame rate of screen
   frameRate((float)frame_rate);
